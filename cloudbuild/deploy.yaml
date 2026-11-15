@@ -1,5 +1,8 @@
 # Deploy NBP application to GKE Autopilot using Helm.
 # Trigger: push to main in nbp-deployment.
+#
+# The operator selects the image digest in values-prod.yaml.
+# New application builds do NOT trigger automatic deployments.
 
 substitutions:
   _CLUSTER: nbp-gke
@@ -14,14 +17,35 @@ steps:
     args:
       - -euc
       - |
+        # Install dependencies.
+        apt-get update
+        apt-get install -y --no-install-recommends \
+          curl \
+          ca-certificates \
+          gnupg
+
+        # Configure the official Google Cloud APT repository.
+        curl -fsSL \
+          https://packages.cloud.google.com/apt/doc/apt-key.gpg \
+          | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+
+        echo \
+          "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
+          > /etc/apt/sources.list.d/google-cloud-sdk.list
+
+        # Install kubectl and GKE authentication plugin.
         apt-get update
         apt-get install -y --no-install-recommends \
           google-cloud-cli-gke-gcloud-auth-plugin \
-          kubectl \
-          curl \
-          ca-certificates
+          kubectl
 
+        # Verify Kubernetes tools.
+        gke-gcloud-auth-plugin --version
+        kubectl version --client
+
+        # Install Helm.
         HELM_VERSION="v3.17.3"
+
         curl --fail --location --silent --show-error \
           "https://get.helm.sh/helm-$${HELM_VERSION}-linux-amd64.tar.gz" \
           -o /tmp/helm.tar.gz
@@ -29,13 +53,21 @@ steps:
         tar -xzf /tmp/helm.tar.gz -C /tmp
         install /tmp/linux-amd64/helm /usr/local/bin/helm
 
+        helm version
+
+        # Authenticate with GKE.
         gcloud container clusters get-credentials "${_CLUSTER}" \
           --region "${_REGION}" \
           --project "$PROJECT_ID"
 
+        # Verify cluster connectivity.
+        kubectl cluster-info
+
+        # Validate Helm chart with production values.
         helm lint charts/nbp-app \
           -f charts/nbp-app/values-prod.yaml
 
+        # Deploy the operator-approved image digest.
         helm upgrade --install "${_RELEASE}" charts/nbp-app \
           --namespace "${_NAMESPACE}" \
           --create-namespace \
@@ -43,6 +75,7 @@ steps:
           --wait \
           --timeout 15m
 
+        # Display deployment resources.
         kubectl get deployments,services,ingresses,hpa \
           --namespace "${_NAMESPACE}"
 
