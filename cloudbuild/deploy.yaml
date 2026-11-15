@@ -1,0 +1,52 @@
+# Deploy NBP application to GKE Autopilot using Helm.
+# Trigger: push to main in nbp-deployment.
+
+substitutions:
+  _CLUSTER: nbp-gke
+  _REGION: europe-central2
+  _NAMESPACE: nbp-prod
+  _RELEASE: nbp-app
+
+steps:
+  - id: helm-deploy
+    name: gcr.io/google.com/cloudsdktool/google-cloud-cli:stable
+    entrypoint: bash
+    args:
+      - -euc
+      - |
+        apt-get update
+        apt-get install -y --no-install-recommends \
+          google-cloud-cli-gke-gcloud-auth-plugin \
+          kubectl \
+          curl \
+          ca-certificates
+
+        HELM_VERSION="v3.17.3"
+        curl --fail --location --silent --show-error \
+          "https://get.helm.sh/helm-$${HELM_VERSION}-linux-amd64.tar.gz" \
+          -o /tmp/helm.tar.gz
+
+        tar -xzf /tmp/helm.tar.gz -C /tmp
+        install /tmp/linux-amd64/helm /usr/local/bin/helm
+
+        gcloud container clusters get-credentials "${_CLUSTER}" \
+          --region "${_REGION}" \
+          --project "$PROJECT_ID"
+
+        helm lint charts/nbp-app \
+          -f charts/nbp-app/values-prod.yaml
+
+        helm upgrade --install "${_RELEASE}" charts/nbp-app \
+          --namespace "${_NAMESPACE}" \
+          --create-namespace \
+          -f charts/nbp-app/values-prod.yaml \
+          --wait \
+          --timeout 15m
+
+        kubectl get deployments,services,ingresses,hpa \
+          --namespace "${_NAMESPACE}"
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: 1800s
