@@ -1,0 +1,16 @@
+# Production environment - GKE Autopilot
+
+image:
+  digest: "sha256:75c69b687b1925d256e4dd62fa87376c1df4ee9f39ecdef61c7b6860dcc25bf3"
+
+replicaCount: 2
+
+ingress:
+  enabled: true
+  className: gce
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
