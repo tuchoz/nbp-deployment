@@ -8,7 +8,17 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
   annotations:
     kubernetes.io/ingress.class: "gce"
+    {{- if .Values.tls.enabled }}
+    cert-manager.io/issuer: {{ .Release.Name }}-letsencrypt
+    acme.cert-manager.io/http01-edit-in-place: "true"
+    {{- end }}
 spec:
+  {{- if .Values.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ .Values.tls.hostname | quote }}
+      secretName: {{ .Values.tls.secretName }}
+  {{- end }}
   rules:
     - http:
         paths:
