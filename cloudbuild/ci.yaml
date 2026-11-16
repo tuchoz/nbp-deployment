@@ -1,0 +1,25 @@
+# Validate Helm chart on pull requests.
+# This pipeline does not deploy anything.
+
+steps:
+  - id: helm-validation
+    name: alpine/helm:3.17.3
+    entrypoint: sh
+    args:
+      - -euc
+      - |
+        helm lint charts/nbp-app \
+          -f charts/nbp-app/values-prod.yaml
+
+        helm template nbp-app charts/nbp-app \
+          -f charts/nbp-app/values-prod.yaml \
+          > /tmp/nbp-rendered.yaml
+
+        test -s /tmp/nbp-rendered.yaml
+
+        echo "Helm validation completed successfully."
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: 300s
