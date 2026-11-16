@@ -12,8 +12,8 @@ spec:
   rules:
     - http:
         paths:
-          - path: /
-            pathType: ImplementationSpecific
+          - path: {{ .Values.ingress.path | quote }}
+            pathType: {{ .Values.ingress.pathType }}
             backend:
               service:
                 name: {{ .Release.Name }}

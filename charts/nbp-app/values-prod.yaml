@@ -8,6 +8,8 @@ replicaCount: 2
 ingress:
   enabled: true
   className: gce
+  path: /*
+  pathType: ImplementationSpecific
 
 autoscaling:
   enabled: true
