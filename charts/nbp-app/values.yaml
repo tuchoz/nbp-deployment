@@ -11,6 +11,7 @@ service:
 ingress:
   enabled: false
   className: gce
+  redirectToHttps: false
 
 autoscaling:
   enabled: false

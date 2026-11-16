@@ -11,6 +11,9 @@ metadata:
     {{- if .Values.tls.enabled }}
     acme.cert-manager.io/http01-edit-in-place: "true"
     {{- end }}
+    {{- if .Values.ingress.redirectToHttps }}
+    networking.gke.io/v1beta1.FrontendConfig: {{ .Release.Name | quote }}
+    {{- end }}
 spec:
   {{- if .Values.tls.enabled }}
   tls:
