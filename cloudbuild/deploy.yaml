@@ -70,11 +70,9 @@ steps:
         # Deploy the operator-approved image digest.
         helm upgrade --install "${_RELEASE}" charts/nbp-app \
           --namespace "${_NAMESPACE}" \
-          --create-namespace \
           -f charts/nbp-app/values-prod.yaml \
           --wait \
           --timeout 15m
-
         # Display deployment resources.
         kubectl get deployments,services,ingresses,hpa \
           --namespace "${_NAMESPACE}"
