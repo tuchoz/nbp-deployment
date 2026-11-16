@@ -60,9 +60,6 @@ steps:
           --region "${_REGION}" \
           --project "$PROJECT_ID"
 
-        # Verify cluster connectivity.
-        kubectl cluster-info
-
         # Validate Helm chart with production values.
         helm lint charts/nbp-app \
           -f charts/nbp-app/values-prod.yaml
