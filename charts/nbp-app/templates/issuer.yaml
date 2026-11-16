@@ -1,0 +1,16 @@
+{{- if .Values.tls.enabled }}
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ .Release.Name }}-letsencrypt
+  namespace: {{ .Release.Namespace }}
+spec:
+  acme:
+    server: {{ .Values.tls.acmeServer | quote }}
+    privateKeySecretRef:
+      name: {{ .Release.Name }}-letsencrypt-account
+    solvers:
+      - http01:
+          ingress:
+            class: gce
+{{- end }}

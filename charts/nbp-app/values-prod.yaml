@@ -16,3 +16,9 @@ autoscaling:
   minReplicas: 2
   maxReplicas: 5
   targetCPUUtilizationPercentage: 70
+
+tls:
+  enabled: true
+  hostname: 136-69-119-54.sslip.io
+  secretName: nbp-app-tls
+  acmeServer: https://acme-staging-v02.api.letsencrypt.org/directory
