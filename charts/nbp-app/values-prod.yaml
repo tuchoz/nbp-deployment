@@ -20,5 +20,5 @@ autoscaling:
 tls:
   enabled: true
   hostname: 136-69-119-54.sslip.io
-  secretName: nbp-app-tls
+  secretName: nbp-app-tls-prod
   acmeServer: https://acme-staging-v02.api.letsencrypt.org/directory
