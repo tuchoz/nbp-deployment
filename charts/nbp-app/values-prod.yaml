@@ -1,7 +1,7 @@
 # Production environment - GKE Autopilot
 
 image:
-  digest: "sha256:b2b5021a21f9bfe9293e6847e2d3e649d3424b9de90954d2f10203984597867e"
+  digest: "sha256:250054989824b5b2b6f23a78eb78cd6eff2960e6197bad3ff7260106a695bc68"
 
 replicaCount: 2
 
