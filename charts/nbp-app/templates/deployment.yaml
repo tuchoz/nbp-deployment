@@ -6,6 +6,7 @@ metadata:
     app.kubernetes.io/name: {{ .Chart.Name }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
+
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
@@ -49,6 +50,7 @@ spec:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
               protocol: TCP
+
             - name: management
               containerPort: 9090
               protocol: TCP
@@ -87,6 +89,15 @@ spec:
             periodSeconds: 5
             failureThreshold: 12
 
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+
           terminationMessagePolicy: FallbackToLogsOnError
+
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 128Mi
 
       terminationGracePeriodSeconds: 30
