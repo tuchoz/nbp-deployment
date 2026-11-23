@@ -68,6 +68,7 @@ steps:
         helm upgrade --install "${_RELEASE}" charts/nbp-app \
           --namespace "${_NAMESPACE}" \
           -f charts/nbp-app/values-prod.yaml \
+          --atomic \
           --wait \
           --timeout 15m
         # Display deployment resources.
